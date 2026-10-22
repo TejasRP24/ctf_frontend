@@ -1,7 +1,10 @@
 import { io } from 'socket.io-client';
 
-// Read backend url from Vite env or fallback
-const BACKEND_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_URL) || process.env.BACKEND_URL || 'http://localhost:5000';
+// Read backend url from Vite env or fallback to Render backend
+const BACKEND_URL = 
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_URL) || 
+  (typeof process !== 'undefined' && process.env && process.env.BACKEND_URL) || 
+  'https://ctf-backend-1.onrender.com';
 
 let socket = null;
 const leaderboardListeners = new Set();
@@ -39,69 +42,10 @@ const handleNewSolve = (payload) => {
 };
 
 export const connectLeaderboardSocket = (onConnect = () => {}, options = {}) => {
-  if (socket && socket.connected) {
-    onConnect(socket);
-    return socket;
-  }
-
-  // Allow auth token from options or fallback to localStorage
-  const token = options?.auth?.token || localStorage.getItem('token') || null;
-
-  socket = io(BACKEND_URL, {
-    path: '/socket.io',
-    // prefer websocket but allow polling fallback for strict proxies
-    transports: options.transports || ['websocket', 'polling'],
-    withCredentials: true,
-    reconnection: true,
-    reconnectionAttempts: options.reconnectionAttempts ?? Infinity,
-    reconnectionDelay: options.reconnectionDelay ?? 1000,
-    timeout: options.timeout ?? 20000,
-    auth: { token },
-    ...options
-  });
-
-  socket.on('connect', () => {
-    onConnect(socket);
-  });
-
-  socket.on('disconnect', (reason) => {
-    // Socket disconnected
-  });
-
-  socket.on('connect_error', (err) => {
-    // Connection error
-  });
-
-  socket.on('reconnect_attempt', (attempt) => {
-    // Reconnection attempt
-  });
-
-  socket.on('reconnect', (attempt) => {
-    // Reconnected successfully
-  });
-
-  socket.on('reconnect_failed', () => {
-    // Failed to reconnect
-  });
-
-  // Backend emits difficulty-specific events
-  socket.on('leaderboard_update_beginner', (payload) => {
-    handleLeaderboardEvent(payload);
-  });
-  socket.on('leaderboard_update_intermediate', (payload) => {
-    handleLeaderboardEvent(payload);
-  });
-
-  // Other events
-  socket.on('user_rank_change', (payload) => {
-    handleUserRank(payload);
-  });
-  socket.on('new_solve', (payload) => {
-    handleNewSolve(payload);
-  });
-
-  return socket;
+  // WebSockets are not enabled in backend - leaderboard uses REST API endpoints
+  return null;
 };
+
 
 export const onLeaderboardUpdate = (cb) => {
   leaderboardListeners.add(cb);

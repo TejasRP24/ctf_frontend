@@ -10,7 +10,11 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 
 function App() {
-	const { isAuthenticated, isAdmin } = useAuth();
+	const { isAuthenticated, isAdmin, isLoading } = useAuth();
+
+	if (isLoading) {
+		return <div style={{ minHeight: '100vh', background: '#0a0b10' }}></div>;
+	}
 
 	return (
 		<Routes>

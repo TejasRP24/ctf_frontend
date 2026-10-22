@@ -57,7 +57,7 @@ export default function CTFHeader() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate('/login');
   };
 
   const userInitials = useMemo(() => {

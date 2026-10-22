@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Use BACKEND_URL from .env file (accessed via Vite's import.meta.env)
-// Default to Render backend if not set
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://ctf-backend-1.onrender.com';
+// Default to CSEA backend if not set in .env
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://csea.psgtech.ac.in/cybersec';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -66,7 +66,7 @@ export const login = async (payload) => {
 };
 
 export const logout = async () => {
-  const res = await api.post('/auth/logout');
+  const res = await api.post('/auth/logout', {}, { timeout: 3000 });
   return res.data;
 };
 

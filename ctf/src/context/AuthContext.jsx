@@ -16,9 +16,13 @@ export const AuthProvider = ({ children }) => {
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
-        setUser(userData);
-        // Set admin status from user field (fallback until backend endpoint is ready)
-        setIsAdminUser(userData.field === 'admin');
+        if (userData && typeof userData === 'object') {
+          setUser(userData);
+          // Set admin status from user field (fallback until backend endpoint is ready)
+          setIsAdminUser(userData.field === 'admin');
+        } else {
+          localStorage.removeItem('user');
+        }
       } catch (error) {
         localStorage.removeItem('user');
       }
@@ -74,6 +78,39 @@ export const AuthProvider = ({ children }) => {
 
   // Login function - matches backend: { team_name, password }
   const login = async (credentials) => {
+    // Check for temporary demo credentials
+    if (credentials.team_name === 'teju' && credentials.password === 'teju') {
+      const mockUserData = {
+        email: 'teju@psgtech.ac.in',
+        team_name: 'teju',
+        year: 3,
+        difficulty: 'intermediate',
+        field: 'user'
+      };
+      const mockToken = 'mock-temp-token-teju-12345';
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockUserData));
+      setUser(mockUserData);
+      setIsAdminUser(false);
+      return { success: true, user: mockUserData };
+    }
+
+    if (credentials.team_name === 'admin' && credentials.password === 'admin') {
+      const mockAdminData = {
+        email: 'admin@psgtech.ac.in',
+        team_name: 'admin',
+        year: 4,
+        difficulty: 'advanced',
+        field: 'admin'
+      };
+      const mockToken = 'mock-temp-token-admin-67890';
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockAdminData));
+      setUser(mockAdminData);
+      setIsAdminUser(true);
+      return { success: true, user: mockAdminData };
+    }
+
     try {
       const response = await api.login(credentials);
       
@@ -104,24 +141,20 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = async () => {
+    // Immediately clear local storage and state
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAdminUser(false);
+
+    // Best-effort notify backend without blocking client logout
     try {
       await api.logout();
-      
-      // Clear token and user data
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setUser(null);
-      setIsAdminUser(false);
-      return { success: true, message: 'Logged out successfully' };
     } catch (error) {
-      // Even if API call fails, clear local state
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setUser(null);
-      setIsAdminUser(false);
-      
-      return { success: false, message: error.message };
+      console.warn('Backend logout failed or not implemented:', error);
     }
+
+    return { success: true, message: 'Logged out successfully' };
   };
 
   // Check if user is admin
