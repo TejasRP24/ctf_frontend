@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Use BACKEND_URL from .env file (accessed via Vite's import.meta.env)
-// Default to CSEA backend if not set in .env
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://csea.psgtech.ac.in/cybersec';
+// Default backend URL
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://kriyabackend.psgtech.ac.in/cybersec/ctf';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -34,8 +34,6 @@ api.interceptors.response.use(
   (err) => {
     // Handle 401 Unauthorized errors
     if (err.response?.status === 401) {
-      const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Unauthorized';
-      
       // Don't redirect if it's a login/signup request failing (wrong credentials)
       const isAuthEndpoint = err.config?.url?.includes('/auth/login') || err.config?.url?.includes('/auth/signup');
       
@@ -66,14 +64,23 @@ export const login = async (payload) => {
 };
 
 export const logout = async () => {
-  const res = await api.post('/auth/logout', {}, { timeout: 3000 });
-  return res.data;
+  try {
+    const res = await api.post('/auth/logout', {}, { timeout: 3000 });
+    return res.data;
+  } catch (e) {
+    return { success: true };
+  }
 };
 
 // Check if user is admin
 export const checkIsAdmin = async () => {
-  const res = await api.get('/admin/isAdmin');
-  return res.data;
+  try {
+    const res = await api.get('/admin/isAdmin');
+    return res.data;
+  } catch (err) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return { flag: user?.field === 'admin' };
+  }
 };
 
 // Leaderboard endpoints
@@ -107,7 +114,6 @@ export const fetchQuestionsByCategory = async (categoryId) => {
 // Get individual question details
 export const fetchQuestionDetails = async (question_id) => {
   const res = await api.post('/submission/question', { question_id });
-  console.log('🔍 Frontend API - Fetched question details:', res.data);
   return res.data;
 };
 
@@ -140,7 +146,6 @@ export const createCategoryAdmin = async (payload) => {
   return res.data;
 };
 
-// New endpoints for updating/deleting categories
 export const updateCategoryAdmin = async (id, payload) => {
   const res = await api.patch(`/admin/categories/${id}`, payload);
   return res.data;
@@ -179,10 +184,16 @@ export default {
   signup,
   login,
   logout,
+  checkIsAdmin,
   fetchLeaderboard,
+  fetchLeaderboardByDifficulty,
   submitAnswer,
   fetchSubmissionCategories,
   fetchQuestionsByCategory,
+  fetchQuestionDetails,
+  checkQuestionSolved,
+  fetchSolvedQuestions,
+  fetchUnsolvedQuestions,
   getCategoriesAdmin,
   createCategoryAdmin,
   updateCategoryAdmin,

@@ -78,39 +78,6 @@ export const AuthProvider = ({ children }) => {
 
   // Login function - matches backend: { team_name, password }
   const login = async (credentials) => {
-    // Check for temporary demo credentials
-    if (credentials.team_name === 'teju' && credentials.password === 'teju') {
-      const mockUserData = {
-        email: 'teju@psgtech.ac.in',
-        team_name: 'teju',
-        year: 3,
-        difficulty: 'intermediate',
-        field: 'user'
-      };
-      const mockToken = 'mock-temp-token-teju-12345';
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUserData));
-      setUser(mockUserData);
-      setIsAdminUser(false);
-      return { success: true, user: mockUserData };
-    }
-
-    if (credentials.team_name === 'admin' && credentials.password === 'admin') {
-      const mockAdminData = {
-        email: 'admin@psgtech.ac.in',
-        team_name: 'admin',
-        year: 4,
-        difficulty: 'advanced',
-        field: 'admin'
-      };
-      const mockToken = 'mock-temp-token-admin-67890';
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockAdminData));
-      setUser(mockAdminData);
-      setIsAdminUser(true);
-      return { success: true, user: mockAdminData };
-    }
-
     try {
       const response = await api.login(credentials);
       

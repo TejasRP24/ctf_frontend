@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 const BACKEND_URL = 
   (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_URL) || 
   (typeof process !== 'undefined' && process.env && process.env.BACKEND_URL) || 
-  'https://ctf-backend-1.onrender.com';
+  'https://kriyabackend.psgtech.ac.in/cybersec/ctf';
 
 let socket = null;
 const leaderboardListeners = new Set();
