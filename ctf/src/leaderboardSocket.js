@@ -6,7 +6,7 @@ const LOG_PREFIX = '[Leaderboard WebSocket]';
 const getSocketConfig = () => {
   const rawUrl =
     (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BACKEND_URL) ||
-    'https://kriyabackend.psgtech.ac.in/cybersec/ctf';
+    'https://ctf-backend-zxi9.onrender.com/cybersec/ctf';
 
   let hostOrigin = rawUrl;
   let socketPath = '/cybersec/ctf/socket.io';
